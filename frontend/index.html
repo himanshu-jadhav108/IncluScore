@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IncluScore — Credit for Everyone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    /* ─── CSS Variables ─────────────────────────────────── */
+    :root {
+      --ink:       #0f0e17;
+      --paper:     #fffcf5;
+      --cream:     #f7f3e8;
+      --gold:      #d4a853;
+      --gold-lt:   #f0d28a;
+      --teal:      #1a8a72;
+      --teal-lt:   #e8f5f1;
+      --coral:     #e85d3a;
+      --coral-lt:  #fdeee9;
+      --slate:     #5c6070;
+      --border:    #e2ddd0;
+      --shadow:    0 2px 16px rgba(15,14,23,.07);
+      --shadow-lg: 0 8px 40px rgba(15,14,23,.12);
+      --r:         16px;
+      --r-sm:      10px;
+    }
+
+    /* ─── Reset ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    img, svg { display: block; }
+    button { cursor: pointer; font-family: inherit; border: none; outline: none; }
+    select { font-family: inherit; cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── Layout ─────────────────────────────────────────── */
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+    /* ─── Typography ─────────────────────────────────────── */
+    h1, h2, h3, .label { font-family: 'Syne', sans-serif; }
+    .label { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--slate); }
+
+    /* ─── Navbar ─────────────────────────────────────────── */
+    nav {
+      background: var(--ink);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: #fff;
+    }
+    .nav-logo span { color: var(--gold); }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--gold);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-tag {
+      font-size: .7rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+    }
+    .btn-connect {
+      background: var(--gold);
+      color: var(--ink);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .8rem;
+      letter-spacing: .04em;
+      padding: 8px 18px;
+      border-radius: 8px;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-connect:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212,168,83,.4); }
+
+    /* ─── Hero strip ─────────────────────────────────────── */
+    .hero {
+      background: var(--ink);
+      color: #fff;
+      padding: 40px 24px 80px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .hero h1 em { color: var(--gold); font-style: normal; }
+    .hero p {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.6);
+      max-width: 560px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+    }
+
+    /* Persona selector */
+    .persona-select-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 12px;
+      padding: 6px 6px 6px 16px;
+    }
+    .persona-select-wrap span { font-size: .85rem; color: rgba(255,255,255,.5); white-space: nowrap; }
+    #userSelect {
+      background: var(--gold);
+      color: var(--ink);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .85rem;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    /* ─── Main card grid ──────────────────────────────────── */
+    .dashboard {
+      transform: translateY(-40px);
+      padding: 0 24px;
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Cards ──────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title-icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem;
+    }
+
+    /* ─── Score gauge ─────────────────────────────────────── */
+    .gauge-wrap {
+      position: relative;
+      width: 200px;
+      margin: 0 auto 8px;
+    }
+    .gauge-center {
+      position: absolute;
+      top: 52%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .score-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1;
+      transition: all .4s ease;
+    }
+    .score-band {
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .band-excellent { color: var(--teal); }
+    .band-good      { color: #3d9a5c; }
+    .band-fair      { color: var(--gold); }
+    .band-poor      { color: var(--coral); }
+
+    /* Score legend */
+    .score-legend {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+      margin-bottom: 20px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .7rem;
+      color: var(--slate);
+    }
+    .legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ─── Profile card ───────────────────────────────────── */
+    .profile-card {
+      background: var(--cream);
+      border-radius: var(--r-sm);
+      padding: 16px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    .avatar {
+      width: 52px; height: 52px;
+      border-radius: 12px;
+      background: var(--ink);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .profile-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .profile-meta {
+      font-size: .8rem;
+      color: var(--slate);
+      margin-top: 2px;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .stat-box {
+      background: #fff;
+      border-radius: var(--r-sm);
+      padding: 10px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .stat-val {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .stat-lbl { font-size: .65rem; color: var(--slate); margin-top: 2px; line-height: 1.3; }
+
+    /* ─── Factors panel ──────────────────────────────────── */
+    .factor-item {
+      margin-bottom: 14px;
+    }
+    .factor-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: .82rem;
+    }
+    .factor-name { font-weight: 500; }
+    .factor-pct { font-weight: 700; color: var(--teal); }
+    .progress-track {
+      height: 7px;
+      background: var(--cream);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--teal), var(--gold));
+      transition: width .6s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ─── Recommendations ────────────────────────────────── */
+    .rec-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--teal-lt);
+      border-radius: var(--r-sm);
+      margin-bottom: 10px;
+      border: 1px solid rgba(26,138,114,.15);
+      font-size: .84rem;
+      line-height: 1.5;
+      transition: transform .15s;
+    }
+    .rec-item:hover { transform: translateX(4px); }
+    .rec-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ─── Simulate button ────────────────────────────────── */
+    .btn-simulate {
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--ink);
+      color: var(--gold);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .9rem;
+      letter-spacing: .04em;
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background .2s, transform .15s;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-simulate:hover { background: #1e1c2e; transform: translateY(-1px); }
+    .btn-simulate:active { transform: scale(.98); }
+    .btn-simulate.loading { opacity: .7; pointer-events: none; }
+    .simulate-spin { display: none; animation: spin .7s linear infinite; }
+    .btn-simulate.loading .simulate-spin { display: inline-block; }
+    .btn-simulate.loading .simulate-txt { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Score delta flash */
+    .score-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: .75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: var(--teal-lt);
+      color: var(--teal);
+      margin-top: 4px;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .score-delta.show { opacity: 1; }
+    .score-delta.negative { background: var(--coral-lt); color: var(--coral); }
+
+    /* ─── Lender view ────────────────────────────────────── */
+    .lender-card {
+      background: var(--ink);
+      color: #fff;
+      border-radius: var(--r);
+      padding: 28px;
+      margin-top: 20px;
+    }
+    .lender-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .lender-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .9rem;
+      color: rgba(255,255,255,.7);
+    }
+    .lender-subtitle {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      margin-top: 2px;
+    }
+    .verdict-badge {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: .85rem;
+      letter-spacing: .08em;
+      padding: 8px 18px;
+      border-radius: 8px;
+    }
+    .verdict-APPROVE { background: var(--teal); color: #fff; }
+    .verdict-REVIEW  { background: var(--gold); color: var(--ink); }
+    .verdict-DENY    { background: var(--coral); color: #fff; }
+
+    .lender-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .lender-metric {
+      background: rgba(255,255,255,.06);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .lender-metric-val {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: #fff;
+    }
+    .lender-metric-lbl {
+      font-size: .68rem;
+      color: rgba(255,255,255,.45);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-top: 3px;
+    }
+
+    .risk-bars { margin-top: 16px; }
+    .risk-bar-item { margin-bottom: 10px; }
+    .risk-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: .75rem;
+      color: rgba(255,255,255,.55);
+      margin-bottom: 4px;
+    }
+    .risk-track {
+      height: 5px;
+      background: rgba(255,255,255,.1);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .risk-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--gold);
+      transition: width .6s ease;
+    }
+
+    /* ─── Collapsible trigger ────────────────────────────── */
+    .collapse-trigger {
+      width: 100%;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .85rem;
+      color: var(--ink);
+      margin-top: 20px;
+      transition: background .15s;
+    }
+    .collapse-trigger:hover { background: var(--border); }
+    .chevron { transition: transform .3s; font-size: .9rem; }
+    .chevron.open { transform: rotate(180deg); }
+
+    /* ─── Privacy badge ──────────────────────────────────── */
+    .privacy-badge {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--ink);
+      color: #fff;
+      font-size: .72rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: var(--shadow-lg);
+      z-index: 99;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    /* ─── Toast notifications ────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 64px;
+      right: 20px;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast-item {
+      background: var(--ink);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: .82rem;
+      max-width: 300px;
+      box-shadow: var(--shadow-lg);
+      animation: toastIn .3s ease;
+    }
+    .toast-item.success { border-left: 3px solid var(--teal); }
+    .toast-item.error   { border-left: 3px solid var(--coral); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ─── Loading skeleton ───────────────────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--cream) 25%, var(--border) 50%, var(--cream) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer {
+      from { background-position: 200% 0; }
+      to   { background-position: -200% 0; }
+    }
+
+    /* ─── Score animation ────────────────────────────────── */
+    @keyframes scoreGrow {
+      0%   { transform: scale(.7); opacity: 0; }
+      70%  { transform: scale(1.08); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .score-animate { animation: scoreGrow .5s ease forwards; }
+
+    /* ─── Footer ─────────────────────────────────────────── */
+    footer {
+      margin-top: 40px;
+      padding: 28px 24px;
+      text-align: center;
+      font-size: .78rem;
+      color: var(--slate);
+      border-top: 1px solid var(--border);
+    }
+    footer strong { color: var(--ink); font-family: 'Syne', sans-serif; }
+  </style>
+</head>
+<body>
+
+<!-- ─── Navbar ──────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-icon">⬡</div>
+    Inclu<span>Score</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-tag">AI FinTech · Hackathon</span>
+    <button class="btn-connect" onclick="showToast('Connect Data integrations coming soon!', 'success')">
+      + Connect Data
+    </button>
+  </div>
+</nav>
+
+<!-- ─── Hero ─────────────────────────────────────────────────── -->
+<div class="hero">
+  <h1>Credit Scores for <em>1.7 Billion</em><br>Unbanked Adults</h1>
+  <p>Using UPI history, bill payments, and mobile data — not just bank statements — to unlock fair financial access.</p>
+  <div class="persona-select-wrap">
+    <span>View demo for</span>
+    <select id="userSelect" onchange="loadUser(this.value)">
+      <option value="1">Raj Kumar — Gig Worker</option>
+      <option value="2">Priya Sharma — Retail Salaried</option>
+      <option value="3">Amit Patel — Student</option>
+    </select>
+  </div>
+</div>
+
+<!-- ─── Dashboard ────────────────────────────────────────────── -->
+<div class="dashboard">
+  <div class="grid-2">
+
+    <!-- LEFT COLUMN -->
+    <div>
+      <!-- Score Gauge Card -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon" style="background:#f0f7ff; font-size:1rem;">📊</div>
+          Credit Score
+        </div>
+        <div class="gauge-wrap">
+          <canvas id="gaugeChart" width="200" height="120"></canvas>
+          <div class="gauge-center">
+            <div class="score-number" id="scoreNumber">—</div>
+            <div class="score-band" id="scoreBand">Loading…</div>
+            <div class="score-delta" id="scoreDelta">+0</div>
+          </div>
+        </div>
+        <div class="score-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>Poor 300–549</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Fair 550–649</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#3d9a5c"></div>Good 650–749</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Excellent 750+</div>
+        </div>
+
+        <!-- Profile -->
+        <div class="profile-card">
+          <div class="avatar" id="avatarInitials">?</div>
+          <div>
+            <div class="profile-name" id="profileName">Loading…</div>
+            <div class="profile-meta" id="profileMeta">…</div>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-val" id="statUPI">—</div>
+            <div class="stat-lbl">UPI / Month</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="statBills">—</div>
+            <div class="stat-lbl">Bills On Time</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="statSavings">—</div>
+            <div class="stat-lbl">Savings Score</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+      <!-- Why this score -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon" style="background:var(--teal-lt);">🔬</div>
+          Why This Score?
+        </div>
+        <div id="factorsPanel">
+          <div class="skeleton" style="height:40px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:40px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:40px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:40px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:40px"></div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-title">
+          <div class="card-title-icon" style="background:#fff3e0;">💡</div>
+          Action Plan
+        </div>
+        <div id="recsPanel">
+          <div class="skeleton" style="height:56px;margin-bottom:10px"></div>
+          <div class="skeleton" style="height:56px;margin-bottom:10px"></div>
+          <div class="skeleton" style="height:56px"></div>
+        </div>
+        <button class="btn-simulate" id="simulateBtn" onclick="simulateTransaction()">
+          <span class="simulate-spin">⟳</span>
+          <span class="simulate-txt">⚡ Simulate New UPI Transaction</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lender View toggle -->
+  <button class="collapse-trigger" onclick="toggleLenderView(this)">
+    <span>🏦 Lender View — Risk Assessment</span>
+    <span class="chevron" id="lenderChevron">▼</span>
+  </button>
+  <div id="lenderView" style="display:none">
+    <div class="lender-card">
+      <div class="lender-header">
+        <div>
+          <div class="lender-title">AI Credit Decision</div>
+          <div class="lender-subtitle">Instant Risk Assessment</div>
+        </div>
+        <div class="verdict-badge" id="verdictBadge">—</div>
+      </div>
+      <div class="lender-metrics">
+        <div class="lender-metric">
+          <div class="lender-metric-val" id="lenderScore">—</div>
+          <div class="lender-metric-lbl">Credit Score</div>
+        </div>
+        <div class="lender-metric">
+          <div class="lender-metric-val" id="lenderConf">—</div>
+          <div class="lender-metric-lbl">AI Confidence</div>
+        </div>
+        <div class="lender-metric">
+          <div class="lender-metric-val" id="lenderBand">—</div>
+          <div class="lender-metric-lbl">Risk Band</div>
+        </div>
+      </div>
+      <div class="risk-bars" id="riskBars"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Footer ──────────────────────────────────────────────── -->
+<footer>
+  <strong>IncluScore</strong> · AI-Powered Credit for the Unbanked ·
+  Built for the AI FinTech Hackathon 2025 ·
+  <a href="docs/API_DOCS.md" style="color:var(--teal)">API Docs</a>
+</footer>
+
+<!-- ─── Privacy badge ──────────────────────────────────────── -->
+<div class="privacy-badge">🔒 Privacy First: Data never leaves your device</div>
+
+<!-- ─── Toast container ─────────────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ─────────────────────────────────────────────────────────── -->
+<!-- JavaScript                                                  -->
+<!-- ─────────────────────────────────────────────────────────── -->
+<script>
+  const API_URL = 'http://localhost:8000';
+
+  /* ── State ─────────────────────────────────────────────── */
+  let currentUser = null;
+  let currentPrediction = null;
+  let chart = null;
+  let lenderOpen = false;
+
+  /* ── Mock data (fallback when backend is offline) ────────── */
+  const MOCK = {
+    1: {
+      user: { id:1, name:'Raj Kumar', age:32, city:'Mumbai', occupation:'Gig Worker (Delivery)' },
+      financial_profile: { upi_transactions:45, avg_transaction_amount:320, bill_payments_on_time:18,
+        total_bill_payments:24, mobile_recharge_regularity:0.85, savings_pattern:0.40, monthly_income_estimate:22000 }
+    },
+    2: {
+      user: { id:2, name:'Priya Sharma', age:28, city:'Bengaluru', occupation:'Salaried - Retail Worker' },
+      financial_profile: { upi_transactions:92, avg_transaction_amount:850, bill_payments_on_time:23,
+        total_bill_payments:24, mobile_recharge_regularity:0.96, savings_pattern:0.72, monthly_income_estimate:38000 }
+    },
+    3: {
+      user: { id:3, name:'Amit Patel', age:21, city:'Ahmedabad', occupation:'Student / Part-time Worker' },
+      financial_profile: { upi_transactions:20, avg_transaction_amount:150, bill_payments_on_time:8,
+        total_bill_payments:12, mobile_recharge_regularity:0.60, savings_pattern:0.22, monthly_income_estimate:8000 }
+    }
+  };
+
+  /* ── Local scoring (frontend fallback) ────────────────────── */
+  function localScore(fp) {
+    const s = Math.round(
+      300
+      + fp.bill_payments_on_time * 12
+      + fp.mobile_recharge_regularity * 150
+      + fp.savings_pattern * 180
+      + Math.min(fp.upi_transactions * 0.5, 50)
+      + Math.min(fp.avg_transaction_amount * 0.02, 30)
+    );
+    return Math.max(300, Math.min(900, s));
+  }
+
+  function localFactors(fp) {
+    const raw = {
+      'UPI Transaction Volume':    fp.upi_transactions * 2,
+      'Average Transaction Value': Math.min(fp.avg_transaction_amount * 0.05, 50),
+      'Bill Payment History':      fp.bill_payments_on_time * 12,
+      'Mobile Recharge Regularity':fp.mobile_recharge_regularity * 150,
+      'Savings Behavior':          fp.savings_pattern * 180,
+    };
+    const total = Object.values(raw).reduce((a,b) => a+b, 0) || 1;
+    return Object.fromEntries(Object.entries(raw).map(([k,v]) => [k, Math.round(v / total * 1000) / 10]));
+  }
+
+  function localRecs(fp) {
+    const r = [];
+    if (fp.bill_payments_on_time < 18) r.push('⏰ Set up auto-pay for utility bills — on-time payments can boost your score by up to 144 points.');
+    if (fp.savings_pattern < 0.5)    r.push('💰 Save even ₹200/month consistently — regular savings can add up to 90 points.');
+    if (fp.mobile_recharge_regularity < 0.8) r.push('📱 Maintain a monthly mobile recharge plan — regularity signals financial stability.');
+    if (fp.upi_transactions < 30)    r.push('📲 Use UPI for everyday purchases — each transaction builds your digital footprint.');
+    if (!r.length) r.push('🌟 Excellent profile! Consider applying for your first micro-loan to further build credit history.');
+    return r.slice(0,3);
+  }
+
+  function localBand(s) {
+    if (s >= 750) return 'Excellent';
+    if (s >= 650) return 'Good';
+    if (s >= 550) return 'Fair';
+    return 'Poor';
+  }
+
+  function localLender(s) {
+    if (s >= 700) return 'APPROVE';
+    if (s >= 580) return 'REVIEW';
+    return 'DENY';
+  }
+
+  /* ── Gauge chart ──────────────────────────────────────────── */
+  function initGauge(score) {
+    const canvas = document.getElementById('gaugeChart');
+    const pct = (score - 300) / 600;
+    const color = score >= 750 ? '#1a8a72' : score >= 650 ? '#3d9a5c' : score >= 550 ? '#d4a853' : '#e74c3c';
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [pct, 1 - pct],
+          backgroundColor: [color, '#f0ece3'],
+          borderWidth: 0,
+          circumference: 180,
+          rotation: -90,
+        }]
+      },
+      options: {
+        responsive: false,
+        cutout: '75%',
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        animation: { duration: 700, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  /* ── Load user ───────────────────────────────────────────── */
+  async function loadUser(userId) {
+    showLoading();
+    let userData, prediction;
+
+    try {
+      // Try fetching from backend
+      const res = await fetch(`${API_URL}/users/${userId}`);
+      if (!res.ok) throw new Error('API unavailable');
+      userData = await res.json();
+
+      const fp = userData.financial_profile;
+      const predRes = await fetch(`${API_URL}/predict`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          upi_transactions:           fp.upi_transactions,
+          avg_transaction:            fp.avg_transaction_amount,
+          bill_payments_on_time:      fp.bill_payments_on_time,
+          mobile_recharge_regularity: fp.mobile_recharge_regularity,
+          savings_pattern:            fp.savings_pattern,
+        })
+      });
+      prediction = await predRes.json();
+
+    } catch (e) {
+      // Graceful fallback to local calculation
+      const mock = MOCK[userId];
+      userData = mock;
+      const fp = mock.financial_profile;
+      const score = localScore(fp);
+      prediction = {
+        credit_score: score,
+        confidence: 0.82,
+        factors: localFactors(fp),
+        recommendations: localRecs(fp),
+        risk_band: localBand(score),
+        lender_recommendation: localLender(score),
+      };
+    }
+
+    currentUser = userData;
+    currentPrediction = prediction;
+    updateDashboard(userData, prediction);
+    hideLoading();
+  }
+
+  /* ── Update UI ───────────────────────────────────────────── */
+  function updateDashboard(user, pred) {
+    const u = user.user || user;
+    const fp = user.financial_profile;
+    const score = pred.credit_score;
+
+    // Score gauge
+    initGauge(score);
+    const numEl = document.getElementById('scoreNumber');
+    numEl.textContent = score;
+    numEl.className = 'score-number score-animate';
+    setTimeout(() => numEl.classList.remove('score-animate'), 600);
+
+    // Band
+    const band = pred.risk_band;
+    const bandEl = document.getElementById('scoreBand');
+    bandEl.textContent = band;
+    bandEl.className = `score-band band-${band.toLowerCase()}`;
+
+    // Profile
+    const initials = u.name.split(' ').map(n => n[0]).join('').slice(0,2);
+    document.getElementById('avatarInitials').textContent = initials;
+    document.getElementById('profileName').textContent = u.name;
+    document.getElementById('profileMeta').textContent = `${u.age} yrs · ${u.city} · ${u.occupation}`;
+
+    // Stats
+    document.getElementById('statUPI').textContent    = fp.upi_transactions;
+    document.getElementById('statBills').textContent  = `${fp.bill_payments_on_time}/${fp.total_bill_payments}`;
+    document.getElementById('statSavings').textContent = Math.round(fp.savings_pattern * 100) + '%';
+
+    updateFactors(pred.factors);
+    updateRecommendations(pred.recommendations);
+    updateLenderView(pred);
+  }
+
+  function updateFactors(factors) {
+    const container = document.getElementById('factorsPanel');
+    const sorted = Object.entries(factors).sort((a,b) => b[1]-a[1]);
+    container.innerHTML = sorted.map(([name, pct]) => `
+      <div class="factor-item">
+        <div class="factor-header">
+          <span class="factor-name">${name}</span>
+          <span class="factor-pct">${pct}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:0%" data-target="${pct}"></div>
+        </div>
+      </div>
+    `).join('');
+
+    // Animate bars on next frame
+    requestAnimationFrame(() => {
+      container.querySelectorAll('.progress-fill').forEach(el => {
+        el.style.width = el.dataset.target + '%';
+      });
+    });
+  }
+
+  function updateRecommendations(recs) {
+    document.getElementById('recsPanel').innerHTML = recs.map(r => `
+      <div class="rec-item"><span class="rec-icon">${r.slice(0,2)}</span><span>${r.slice(2)}</span></div>
+    `).join('');
+  }
+
+  function updateLenderView(pred) {
+    document.getElementById('lenderScore').textContent = pred.credit_score;
+    document.getElementById('lenderConf').textContent  = Math.round(pred.confidence * 100) + '%';
+    document.getElementById('lenderBand').textContent  = pred.risk_band;
+
+    const vb = document.getElementById('verdictBadge');
+    vb.textContent = pred.lender_recommendation;
+    vb.className = `verdict-badge verdict-${pred.lender_recommendation}`;
+
+    // Risk bars
+    const factors = pred.factors;
+    const riskHTML = Object.entries(factors).map(([name, val]) => `
+      <div class="risk-bar-item">
+        <div class="risk-bar-header"><span>${name}</span><span>${val}%</span></div>
+        <div class="risk-track"><div class="risk-fill" style="width:${val}%"></div></div>
+      </div>
+    `).join('');
+    document.getElementById('riskBars').innerHTML = riskHTML;
+  }
+
+  /* ── Simulate transaction ─────────────────────────────────── */
+  async function simulateTransaction() {
+    const btn = document.getElementById('simulateBtn');
+    btn.classList.add('loading');
+    const oldScore = currentPrediction?.credit_score || 0;
+
+    try {
+      const userId = document.getElementById('userSelect').value;
+      const res = await fetch(`${API_URL}/users/${userId}/refresh-score`, { method: 'POST' });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+
+      const delta = data.delta || 0;
+      animateScoreUpdate(data.new_score, delta);
+      showToast(data.message || `Score updated! +${delta} pts`, 'success');
+
+    } catch (e) {
+      // Local simulation fallback
+      const fp = currentUser.financial_profile;
+      const delta = Math.floor(Math.random() * 12) + 3;
+      const newFp = { ...fp,
+        upi_transactions: fp.upi_transactions + 2,
+        bill_payments_on_time: Math.min(fp.bill_payments_on_time + 1, 24),
+        savings_pattern: Math.min(fp.savings_pattern + 0.02, 1),
+      };
+      const newScore = Math.min(localScore(newFp), 900);
+      animateScoreUpdate(newScore, delta);
+      showToast(`New transaction detected! Score +${delta} pts 🎉`, 'success');
+    } finally {
+      btn.classList.remove('loading');
+    }
+  }
+
+  function animateScoreUpdate(newScore, delta) {
+    currentPrediction.credit_score = newScore;
+    initGauge(newScore);
+
+    const numEl = document.getElementById('scoreNumber');
+    numEl.textContent = newScore;
+    numEl.classList.remove('score-animate');
+    void numEl.offsetWidth; // reflow
+    numEl.classList.add('score-animate');
+
+    const deltaEl = document.getElementById('scoreDelta');
+    deltaEl.textContent = `+${delta} pts`;
+    deltaEl.className = 'score-delta show';
+    setTimeout(() => deltaEl.classList.remove('show'), 3000);
+  }
+
+  /* ── Lender toggle ────────────────────────────────────────── */
+  function toggleLenderView(btn) {
+    lenderOpen = !lenderOpen;
+    document.getElementById('lenderView').style.display = lenderOpen ? 'block' : 'none';
+    document.getElementById('lenderChevron').classList.toggle('open', lenderOpen);
+  }
+
+  /* ── Loading state ────────────────────────────────────────── */
+  function showLoading() { /* skeletons already in HTML */ }
+  function hideLoading() { /* content replaces skeletons */ }
+
+  /* ── Toast ────────────────────────────────────────────────── */
+  function showToast(msg, type = 'success') {
+    const container = document.getElementById('toast');
+    const el = document.createElement('div');
+    el.className = `toast-item ${type}`;
+    el.textContent = msg;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+
+  /* ── Init ─────────────────────────────────────────────────── */
+  loadUser(1);
+</script>
+</body>
+</html>
